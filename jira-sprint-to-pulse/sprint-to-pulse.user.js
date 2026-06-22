@@ -52,10 +52,13 @@
   //     contentEditable region, so isContentEditable misses them.
   //   - The Atlaskit renderer (.ak-renderer-document) shows SAVED descriptions and
   //     comments read-only — also user content we must leave alone.
+  //   - Issue titles/summaries aren't wrapped in the renderer class but are exposed
+  //     as role="presentation" containers, so skip those too.
   const SKIP_SELECTORS = [
     '.ProseMirror',
     '[data-prosemirror-content-type]',
     '[role="textbox"]',
+    '[role="presentation"]',
     '.akEditor',
     '[data-editor-popup]',
     '[data-editor-container]',

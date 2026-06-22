@@ -42,6 +42,9 @@ sprints, so the script just makes the UI match the terminology we actually use.
   (`.ak-renderer-document` / `[data-renderer-start-pos]`). This is user content,
   not chrome, so it's in the skip selector too — otherwise "sprint" typed by a
   user inside their own description would get rewritten.
+- **Issue titles/summaries** aren't wrapped in the renderer class; they appear in
+  `[role="presentation"]` containers, which are also skipped so user-authored
+  titles keep their original wording.
 - **MutationObserver** (childList + subtree + characterData) catches new
   popups/dialogs/menus. Mutations are **queued and debounced**, and only the
   added subtrees are reprocessed — never the whole page.
