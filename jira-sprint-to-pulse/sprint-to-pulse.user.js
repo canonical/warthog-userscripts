@@ -52,9 +52,11 @@
     // Jira's rich-text editor is ProseMirror. Mutating DOM it owns corrupts its
     // document model (our change gets synced into the saved comment/description)
     // and its typeahead / slash-command overlays render in portals OUTSIDE the
-    // contentEditable region, so isContentEditable misses them. Skip the editor
-    // and anything it renders.
-    if (el.closest && el.closest('.ProseMirror, [data-prosemirror-content-type], [role="textbox"], .akEditor, [data-editor-popup], [data-editor-container]')) {
+    // contentEditable region, so isContentEditable misses them. The SAVED content
+    // is shown via the Atlaskit renderer (.ak-renderer-document), which is also
+    // user content we must leave alone. Skip the editor, its overlays, and the
+    // renderer.
+    if (el.closest && el.closest('.ProseMirror, [data-prosemirror-content-type], [role="textbox"], .akEditor, [data-editor-popup], [data-editor-container], .ak-renderer-document, [data-renderer-start-pos]')) {
       return true;
     }
     return false;

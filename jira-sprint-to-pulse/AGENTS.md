@@ -37,6 +37,11 @@ sprints, so the script just makes the UI match the terminology we actually use.
   .akEditor, [data-editor-popup], [data-editor-container]` via `closest()`, and
   `maybeReplaceText` re-checks the parent so `characterData` keystroke mutations
   inside the editor are never rewritten.
+- **Saved content uses a different renderer.** Once a description/comment is
+  saved, Jira renders it read-only via the Atlaskit renderer
+  (`.ak-renderer-document` / `[data-renderer-start-pos]`). This is user content,
+  not chrome, so it's in the skip selector too — otherwise "sprint" typed by a
+  user inside their own description would get rewritten.
 - **MutationObserver** (childList + subtree + characterData) catches new
   popups/dialogs/menus. Mutations are **queued and debounced**, and only the
   added subtrees are reprocessed — never the whole page.
