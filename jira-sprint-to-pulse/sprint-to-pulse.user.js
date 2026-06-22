@@ -44,21 +44,32 @@
     'SCRIPT', 'STYLE', 'NOSCRIPT', 'TEXTAREA', 'INPUT', 'CODE', 'PRE', 'SELECT'
   ]);
 
+  // CSS selectors for regions we must never rewrite. These are user content or
+  // editor-owned DOM, not Jira chrome:
+  //   - ProseMirror is Jira's rich-text editor. Mutating DOM it owns corrupts its
+  //     document model (our change gets synced into the saved comment/description),
+  //     and its typeahead / slash-command overlays render in portals OUTSIDE the
+  //     contentEditable region, so isContentEditable misses them.
+  //   - The Atlaskit renderer (.ak-renderer-document) shows SAVED descriptions and
+  //     comments read-only — also user content we must leave alone.
+  const SKIP_SELECTORS = [
+    '.ProseMirror',
+    '[data-prosemirror-content-type]',
+    '[role="textbox"]',
+    '.akEditor',
+    '[data-editor-popup]',
+    '[data-editor-container]',
+    '.ak-renderer-document',
+    '[data-renderer-start-pos]'
+  ];
+  const SKIP_SELECTOR = SKIP_SELECTORS.join(', ');
+
   function shouldSkip(el) {
     if (!el) return false;
     if (SKIP_TAGS.has(el.tagName)) return true;
     // Don't rewrite editable fields (user could be typing).
     if (el.isContentEditable) return true;
-    // Jira's rich-text editor is ProseMirror. Mutating DOM it owns corrupts its
-    // document model (our change gets synced into the saved comment/description)
-    // and its typeahead / slash-command overlays render in portals OUTSIDE the
-    // contentEditable region, so isContentEditable misses them. The SAVED content
-    // is shown via the Atlaskit renderer (.ak-renderer-document), which is also
-    // user content we must leave alone. Skip the editor, its overlays, and the
-    // renderer.
-    if (el.closest && el.closest('.ProseMirror, [data-prosemirror-content-type], [role="textbox"], .akEditor, [data-editor-popup], [data-editor-container], .ak-renderer-document, [data-renderer-start-pos]')) {
-      return true;
-    }
+    if (el.closest && el.closest(SKIP_SELECTOR)) return true;
     return false;
   }
 
