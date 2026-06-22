@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Jira Sprint → Pulse
 // @namespace    https://github.com/canonical/warthog-userscripts
-// @version      1.0.0
+// @version      1.1.0
 // @description  Replace the keyword "sprint" with "pulse" across Jira Software UI (case-preserving), optimized for performance.
 // @author       you
 // @icon         https://warthogs.atlassian.net/favicon.ico
@@ -49,6 +49,14 @@
     if (SKIP_TAGS.has(el.tagName)) return true;
     // Don't rewrite editable fields (user could be typing).
     if (el.isContentEditable) return true;
+    // Jira's rich-text editor is ProseMirror. Mutating DOM it owns corrupts its
+    // document model (our change gets synced into the saved comment/description)
+    // and its typeahead / slash-command overlays render in portals OUTSIDE the
+    // contentEditable region, so isContentEditable misses them. Skip the editor
+    // and anything it renders.
+    if (el.closest && el.closest('.ProseMirror, [data-prosemirror-content-type], [role="textbox"], .akEditor, [data-editor-popup], [data-editor-container]')) {
+      return true;
+    }
     return false;
   }
 
@@ -87,6 +95,7 @@
   function maybeReplaceText(textNode) {
     const value = textNode.nodeValue;
     if (!value || value.indexOf('print') === -1) return;
+    if (shouldSkip(textNode.parentElement)) return;
     WORD_RE.lastIndex = 0;
     if (!WORD_RE.test(value)) return;
     WORD_RE.lastIndex = 0;

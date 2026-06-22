@@ -27,6 +27,16 @@ sprints, so the script just makes the UI match the terminology we actually use.
 - **Skip list** for `<script>`, `<style>`, `<noscript>`, `<textarea>`, `<input>`,
   `<code>`, `<pre>`, `<select>`, and any `contentEditable` element — prevents
   corrupting code blocks and fields the user is typing into.
+- **ProseMirror is special.** Jira's rich-text editor (comments, descriptions) is
+  ProseMirror, which keeps its own document model synced to the DOM. Mutating text
+  it owns is data loss: our change gets reverted or **synced into the saved
+  content**. Worse, its typeahead / slash-command / emoji overlays render in
+  **portals appended to `<body>`, outside the contentEditable**, so
+  `isContentEditable` misses them. `shouldSkip` therefore also bails on anything
+  matching `.ProseMirror, [data-prosemirror-content-type], [role="textbox"],
+  .akEditor, [data-editor-popup], [data-editor-container]` via `closest()`, and
+  `maybeReplaceText` re-checks the parent so `characterData` keystroke mutations
+  inside the editor are never rewritten.
 - **MutationObserver** (childList + subtree + characterData) catches new
   popups/dialogs/menus. Mutations are **queued and debounced**, and only the
   added subtrees are reprocessed — never the whole page.
