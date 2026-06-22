@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Jira Sprint → Pulse
 // @namespace    https://github.com/canonical/warthog-userscripts
-// @version      1.1.0
+// @version      1.0.0
 // @description  Replace the keyword "sprint" with "pulse" across Jira Software UI (case-preserving), optimized for performance.
 // @author       you
 // @icon         https://warthogs.atlassian.net/favicon.ico
