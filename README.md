@@ -16,6 +16,7 @@ A collection of small quality-of-life (QoL) userscripts for Canonical's internal
 | Script | Description | Install |
 | ------ | ----------- | ------- |
 | [Jira Sprint → Pulse](./jira-sprint-to-pulse) | Replaces the keyword "sprint" with "pulse" across the Jira Software UI. | [Install](https://raw.githubusercontent.com/canonical/warthog-userscripts/main/jira-sprint-to-pulse/sprint-to-pulse.user.js) |
+| [Launchpad "Open in Edge"](./launchpad-open-in-edge) | _Temporary:_ adds an "Open in Edge" action to Launchpad merge pages until this becomes an official part of Launchpad. | [Install](https://raw.githubusercontent.com/canonical/warthog-userscripts/main/launchpad-open-in-edge/open-in-edge.user.js) |
 
 ## Contributing
 
