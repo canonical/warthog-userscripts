@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Launchpad 'Open in Edge' Redirect with Spinner
 // @namespace    https://github.com/canonical/warthog-userscripts
-// @version      1.5.1
+// @version      1.5.2
 // @description  Adds an 'Open in Edge' action to the global-actions menu on code.launchpad.net merge pages, with a spinner while loading. TEMPORARY: intended to be superseded once this becomes an official Launchpad feature.
 // @author       Canonical
 // @icon         https://launchpad.net/@@/launchpad.png

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Launchpad MP: Copy to Mattermost
 // @namespace    https://github.com/canonical/warthog-userscripts
-// @version      1.2.2
+// @version      1.5.2
 // @description  Copy Launchpad merge proposal links as Mattermost Markdown.
 // @author       Canonical
 // @icon         https://launchpad.net/@@/launchpad.png
