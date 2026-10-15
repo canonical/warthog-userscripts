@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Launchpad MP: Copy to Mattermost
 // @namespace    https://github.com/canonical/warthog-userscripts
-// @version      1.5.2
+// @version      1.5.3
 // @description  Copy Launchpad merge proposal links as Mattermost Markdown.
 // @author       Canonical
 // @icon         https://launchpad.net/@@/launchpad.png
@@ -35,13 +35,24 @@
 
   function readTitle() {
     const selectors = ["#maincontent h1", "#main-content h1", "h1"];
+    const genericMergeTitle = /^Merge\s+.+\s+into\s+.+$/i;
+
+    function readCommitTitle() {
+      const message = document.querySelector(
+        "#edit-commit_message .yui3-editable_text-text"
+      )?.textContent;
+
+      return message?.split(/\r?\n/)
+        .map((line) => line.replace(/\s+/g, " ").trim())
+        .find(Boolean) || null;
+    }
 
     for (const selector of selectors) {
       const node = document.querySelector(selector);
       const title = node?.textContent.replace(/\s+/g, " ").trim();
 
       if (title && !/^(Launchpad|Merge proposal)$/i.test(title)) {
-        return title;
+        return genericMergeTitle.test(title) ? readCommitTitle() : title;
       }
     }
 
@@ -50,7 +61,9 @@
       .replace(/\s+/g, " ")
       .trim();
 
-    return pageTitle || null;
+    return genericMergeTitle.test(pageTitle)
+      ? readCommitTitle()
+      : pageTitle || null;
   }
 
   function escapeMarkdown(text) {
