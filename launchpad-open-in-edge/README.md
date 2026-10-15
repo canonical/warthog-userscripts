@@ -18,7 +18,9 @@ showing a spinner while it navigates.
 ## What it does
 
 - Injects an **Open in Edge** link into the `#global-actions` menu on merge
-  proposal pages.
+  proposal pages. When logged out, creates an **Actions** section in the sidebar.
+  This menu handling is shared with **Launchpad MP: Copy to Mattermost** via
+  `@require`; installing both scripts still creates only one sidebar section.
 - Rewrites the current `code.launchpad.net` URL to `edge.launchpad.net` and
   navigates there when clicked.
 - Shows a small spinner and disables the link while the redirect is in flight.

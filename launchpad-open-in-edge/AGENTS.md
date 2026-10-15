@@ -20,18 +20,22 @@ root `README.md`).
 - `@match https://code.launchpad.net/~*/*/+git/*/+merge/*` — Git merge proposal
   pages only.
 - `@grant GM_addStyle` is required for the injected spinner styles.
-- `@run-at document-idle` so `#global-actions` exists before we query it.
+- `@run-at document-idle`; the shared helper also observes later DOM changes.
 
 ## How it works
 
 1. Injects CSS for the loading state and spinner via `GM_addStyle`.
-2. Finds `#global-actions ul`; bails out early if the menu isn't present.
+2. Loads `shared/launchpad-actions.js` via `@require` to use `#global-actions > ul`
+   or create a shared **Actions** portlet in `#side-portlets` when logged out.
 3. Builds the Edge URL by replacing the `https://code.launchpad.net` origin with
    `https://edge.launchpad.net` on the current `location.href`.
 4. Appends a new `<li>` with the "Open in Edge" link styled like the existing
    menu items (`menu-link sprite edit`).
 5. On click, prevents default navigation, shows a spinner, disables the link,
    then navigates to the Edge URL.
+
+The shared helper avoids duplicate actions, moves links when the standard menu
+appears, and removes the fallback portlet only after all scripts' links leave it.
 
 ## Distribution
 
