@@ -1,12 +1,13 @@
 // ==UserScript==
 // @name         Launchpad 'Open in Edge' Redirect with Spinner
 // @namespace    https://github.com/canonical/warthog-userscripts
-// @version      1.5.0
+// @version      1.5.1
 // @description  Adds an 'Open in Edge' action to the global-actions menu on code.launchpad.net merge pages, with a spinner while loading. TEMPORARY: intended to be superseded once this becomes an official Launchpad feature.
 // @author       Canonical
 // @icon         https://launchpad.net/@@/launchpad.png
 // @downloadURL  https://raw.githubusercontent.com/canonical/warthog-userscripts/main/launchpad-open-in-edge/open-in-edge.user.js
 // @updateURL    https://raw.githubusercontent.com/canonical/warthog-userscripts/main/launchpad-open-in-edge/open-in-edge.user.js
+// @require      https://raw.githubusercontent.com/canonical/warthog-userscripts/main/shared/launchpad-actions.js?v=1.0.0
 // @match        https://code.launchpad.net/~*/*/+git/*/+merge/*
 // @run-at       document-idle
 // @grant        GM_addStyle
@@ -43,33 +44,36 @@
         }
     `);
 
-  // --- 2. Find the target menu ---
-  const menu = document.querySelector('#global-actions ul');
-  if (!menu) return;
+  function createAction() {
+    const li = document.createElement('li');
+    const link = document.createElement('a');
+    link.id = 'lp-edge-redirect-link';
+    link.className = 'menu-link sprite edit';
+    link.textContent = 'Open in Edge';
+    link.title = 'Open this page on the Edge build of Launchpad';
 
-  // --- 3. Create the link inside a new <li> ---
-  const newUrl = window.location.href.replace(
-    'https://code.launchpad.net',
-    'https://edge.launchpad.net'
-  );
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      link.classList.add('lp-loading');
+      link.innerHTML = '<span class="lp-spinner"></span>Loading...';
+      window.location.href = link.href;
+    });
 
-  const li = document.createElement('li');
-  const link = document.createElement('a');
-  link.id = 'lp-edge-redirect-link';
-  link.className = 'menu-link sprite edit';
-  link.href = newUrl;
-  link.textContent = 'Open in Edge';
-  link.title = 'Open this page on the Edge build of Launchpad';
+    li.appendChild(link);
+    return li;
+  }
 
-  // --- 4. Click handler with spinner ---
-  link.addEventListener('click', (e) => {
-    e.preventDefault();
-    link.classList.add('lp-loading');
-    link.innerHTML = '<span class="lp-spinner"></span>Loading...';
-    window.location.href = newUrl;
+  launchpadActions.register({
+    id: 'lp-edge-redirect-action',
+    isActive: () => /^\/~[^/]+\/.+\/\+git\/.+\/\+merge\/\d+(?:\/.*)?$/.test(
+      window.location.pathname
+    ),
+    createAction,
+    updateAction: (item) => {
+      item.querySelector('a').href = window.location.href.replace(
+        'https://code.launchpad.net',
+        'https://edge.launchpad.net'
+      );
+    },
   });
-
-  // --- 5. Insert into the menu ---
-  li.appendChild(link);
-  menu.appendChild(li);
 })();

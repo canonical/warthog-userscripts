@@ -1,12 +1,13 @@
 // ==UserScript==
 // @name         Launchpad MP: Copy to Mattermost
 // @namespace    https://github.com/canonical/warthog-userscripts
-// @version      1.2.1
+// @version      1.2.2
 // @description  Copy Launchpad merge proposal links as Mattermost Markdown.
 // @author       Canonical
 // @icon         https://launchpad.net/@@/launchpad.png
 // @downloadURL  https://raw.githubusercontent.com/canonical/warthog-userscripts/main/launchpad-mp-copy-markdown/copy-to-mattermost.user.js
 // @updateURL    https://raw.githubusercontent.com/canonical/warthog-userscripts/main/launchpad-mp-copy-markdown/copy-to-mattermost.user.js
+// @require      https://raw.githubusercontent.com/canonical/warthog-userscripts/main/shared/launchpad-actions.js?v=1.0.0
 // @match        https://code.launchpad.net/*
 // @grant        GM_setClipboard
 // @grant        GM.setClipboard
@@ -17,9 +18,6 @@
   "use strict";
 
   const BUTTON_ID = "launchpad-mp-copy-markdown";
-  const PORTLET_ID = "launchpad-mp-copy-markdown-portlet";
-  const ACTIONS_SELECTOR = "#global-actions > ul";
-  const SIDEBAR_SELECTOR = "#side-portlets";
   const BUTTON_LABEL = "Copy to Mattermost";
   const TOOLTIP = "Copy merge proposal link for Mattermost";
 
@@ -124,87 +122,9 @@
     return item;
   }
 
-  function getActionsContainer() {
-    // Logged in: use the existing actions menu.
-    const actions = document.querySelector(ACTIONS_SELECTOR);
-    if (actions) return actions;
-
-    // Logged out: create an Actions portlet in the sidebar.
-    const sidebar = document.querySelector(SIDEBAR_SELECTOR);
-    if (!sidebar) return null;
-
-    let portlet = document.getElementById(PORTLET_ID);
-
-    if (!portlet || portlet.parentElement !== sidebar) {
-      portlet?.remove();
-
-      portlet = document.createElement("div");
-      portlet.id = PORTLET_ID;
-      portlet.className = "portlet";
-
-      const heading = document.createElement("h2");
-      heading.textContent = "Actions";
-
-      const list = document.createElement("ul");
-
-      portlet.append(heading, list);
-      sidebar.prepend(portlet);
-    }
-
-    return portlet.querySelector("ul");
-  }
-
-  function refresh() {
-    const existing = document.getElementById(BUTTON_ID);
-    const fallbackPortlet = document.getElementById(PORTLET_ID);
-
-    // Only display on merge proposal pages.
-    if (!currentMP()) {
-      existing?.remove();
-      fallbackPortlet?.remove();
-      return;
-    }
-
-    const actions = getActionsContainer();
-
-    if (!actions) {
-      existing?.remove();
-      fallbackPortlet?.remove();
-      return;
-    }
-
-    // Reuse the existing button to avoid duplicates.
-    const item = existing || createAction();
-
-    if (item.parentElement !== actions) {
-      actions.append(item);
-    }
-
-    // Remove fallback when the standard actions menu exists.
-    if (document.querySelector(ACTIONS_SELECTOR)) {
-      document.getElementById(PORTLET_ID)?.remove();
-    }
-  }
-
-  let scheduled = false;
-
-  function scheduleRefresh() {
-    if (scheduled) return;
-    scheduled = true;
-
-    requestAnimationFrame(() => {
-      scheduled = false;
-      refresh();
-    });
-  }
-
-  new MutationObserver(scheduleRefresh).observe(document.documentElement, {
-    childList: true,
-    subtree: true,
+  launchpadActions.register({
+    id: BUTTON_ID,
+    isActive: currentMP,
+    createAction,
   });
-
-  window.addEventListener("popstate", scheduleRefresh);
-  window.addEventListener("pageshow", scheduleRefresh);
-
-  refresh();
 })();
